@@ -2,7 +2,7 @@
 
 **Heroku logs, untangled.**
 
-*A terminal-first Heroku log parser for debugging production.*
+_A terminal-first Heroku log parser for debugging production._
 
 Tentacle is a local, fullscreen TUI for investigating Heroku logs without leaving the terminal. It runs **one** `heroku logs --tail` subprocess, parses each line once, and gives you focused views, grouped errors, release/deploy context, incident/reproduction sessions, request correlation, slow-request tracking, a compact live health dashboard, persistent mute rules, and a redacted LLM-ready export.
 
@@ -202,30 +202,30 @@ A positional app or `--app` value overrides `TENTACLE_APP` for that run.
 
 ## CLI options
 
-| Option | Purpose |
-|---|---|
-| `-a APP`, `--app APP` | Select the Heroku app |
-| `--max-lines N` | Maximum log lines kept in memory; default `5000` |
-| `--slow-ms N` | Slow-request threshold in milliseconds; default `1000` |
-| `--no-color` | Disable ANSI colors |
-| `-v`, `--version` | Print the Tentacle version |
-| `-h`, `--help` | Print command-line help |
+| Option                | Purpose                                                |
+| --------------------- | ------------------------------------------------------ |
+| `-a APP`, `--app APP` | Select the Heroku app                                  |
+| `--max-lines N`       | Maximum log lines kept in memory; default `5000`       |
+| `--slow-ms N`         | Slow-request threshold in milliseconds; default `1000` |
+| `--no-color`          | Disable ANSI colors                                    |
+| `-v`, `--version`     | Print the Tentacle version                             |
+| `-h`, `--help`        | Print command-line help                                |
 
 Environment equivalents are `TENTACLE_APP`, `TENTACLE_MAX_LINES`, and `TENTACLE_SLOW_MS`. `NO_COLOR` also disables ANSI colors. Invalid negative thresholds or non-positive buffer sizes are rejected before the TUI starts.
 
 ## Views
 
-| Key | View | What it does |
-|---|---|---|
+| Key | View         | What it does                                                                |
+| --- | ------------ | --------------------------------------------------------------------------- |
 | `1` | **Overview** | Health snapshot with request/error/slow sparklines and top recurring errors |
-| `2` | **All** | Every buffered log line |
-| `3` | **Web** | Web dyno activity; best first stop when reproducing a request bug |
-| `4` | **Errors** | Chronological application exceptions, 5xxs, H-codes, and database failures |
-| `5` | **Groups** | Repeated errors grouped by exception/H-code/status/message |
-| `6` | **Slow** | Requests whose `service=` time exceeds the configured threshold |
-| `7` | **Worker** | Background jobs / worker dynos |
-| `8` | **Heroku** | Router/platform output, H-codes, restarts, warnings |
-| `9` | **Database** | PostgreSQL and MySQL/MariaDB-related log output and database-side failures |
+| `2` | **All**      | Every buffered log line                                                     |
+| `3` | **Web**      | Web dyno activity; best first stop when reproducing a request bug           |
+| `4` | **Errors**   | Chronological application exceptions, 5xxs, H-codes, and database failures  |
+| `5` | **Groups**   | Repeated errors grouped by exception/H-code/status/message                  |
+| `6` | **Slow**     | Requests whose `service=` time exceeds the configured threshold             |
+| `7` | **Worker**   | Background jobs / worker dynos                                              |
+| `8` | **Heroku**   | Router/platform output, H-codes, restarts, warnings                         |
+| `9` | **Database** | PostgreSQL and MySQL/MariaDB-related log output and database-side failures  |
 
 Every view has a one-line description directly below the tabs and above the search/filter line.
 
@@ -257,34 +257,34 @@ This is an independent community tool and is not affiliated with or endorsed by 
 
 Press **`?` from anywhere** for full in-app help. The bottom footer always shows the controls relevant to the current view.
 
-| Key | Action |
-|---|---|
-| `1`–`9` | Select a view |
-| `Tab` / `Shift-Tab` | Next / previous view |
-| `↑` / `↓`, `j` / `k` | Move the highlighted selection |
-| `PgUp` / `PgDn` | Page |
-| `g` / `Home` | Jump to oldest / first item |
-| `G` / `End` / `f` | Jump to newest and resume following live logs |
-| `n` / `N` | Jump to next / previous **unmuted** error in the current view |
-| `Enter` | Inspect selected event; in Groups, open occurrences |
-| `m` | Mute/unmute the selected error group |
-| `M` | In Groups, show/hide muted groups |
-| `s` | Start/stop an incident reproduction session |
-| `i` | Toggle incident-only scope |
-| `r` | Show buffered lines for selected `request_id` |
-| `/` | Search/filter current view |
-| `x` | Clear active search |
-| `y` | Copy request ID, or raw line if no request ID |
-| `Y` | Copy full raw log line |
-| `L` | Copy a redacted, LLM-ready diagnostic context |
-| `d` | Toggle dual-screen mode: normal UI left, LLM copy preview right |
-| `Esc` | Go back from a nested view; from the main view, quit |
-| `Space` | Pause/resume consuming new logs |
-| `c` | Clear in-memory buffer |
-| `R` | Restart/reconnect the Heroku stream |
-| `?` | Show/hide help |
-| `q` | Quit when not typing in search |
-| `Ctrl-C` | Quit immediately |
+| Key                  | Action                                                          |
+| -------------------- | --------------------------------------------------------------- |
+| `1`–`9`              | Select a view                                                   |
+| `Tab` / `Shift-Tab`  | Next / previous view                                            |
+| `↑` / `↓`, `j` / `k` | Move the highlighted selection                                  |
+| `PgUp` / `PgDn`      | Page                                                            |
+| `g` / `Home`         | Jump to oldest / first item                                     |
+| `G` / `End` / `f`    | Jump to newest and resume following live logs                   |
+| `n` / `N`            | Jump to next / previous **unmuted** error in the current view   |
+| `Enter`              | Inspect selected event; in Groups, open occurrences             |
+| `m`                  | Mute/unmute the selected error group                            |
+| `M`                  | In Groups, show/hide muted groups                               |
+| `s`                  | Start/stop an incident reproduction session                     |
+| `i`                  | Toggle incident-only scope                                      |
+| `r`                  | Show buffered lines for selected `request_id`                   |
+| `/`                  | Search/filter current view                                      |
+| `x`                  | Clear active search                                             |
+| `y`                  | Copy request ID, or raw line if no request ID                   |
+| `Y`                  | Copy full raw log line                                          |
+| `L`                  | Copy a redacted, LLM-ready diagnostic context                   |
+| `d`                  | Toggle dual-screen mode: normal UI left, LLM copy preview right |
+| `Esc`                | Go back from a nested view; from the main view, quit            |
+| `Space`              | Pause/resume consuming new logs                                 |
+| `c`                  | Clear in-memory buffer                                          |
+| `R`                  | Restart/reconnect the Heroku stream                             |
+| `?`                  | Show/hide help                                                  |
+| `q`                  | Quit when not typing in search                                  |
+| `Ctrl-C`             | Quit immediately                                                |
 
 ## Database log view
 
@@ -336,7 +336,6 @@ On a log view, press `/` and type:
 ```
 
 Results preview live while typing. `Enter` keeps the filter; `Esc` restores the filter that existed before you opened search.
-
 
 ## Copy for an LLM
 

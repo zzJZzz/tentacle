@@ -74,7 +74,7 @@ DEPENDENCIES
   ntcharts (~> 0.1.2)
 
 CHECKSUMS
-  bootsnap (1.18.4)
+  bootsnap (1.18.4) sha256=ac4c42af397f7ee15521820198daeff545e4c360d2772c601fbdc2c07d92af55
   bubbles (0.1.1) sha256=ac16a9adef1cd4d51d7246ea6cda1a745a56321cc21a49e150e7446d62797d05
   bubbletea (0.1.4) sha256=33c3ea5eb7ab03160b942a9a8062ba04d0af2245a0b6b7457853ac4bd3218f69
   bubbletea (0.1.4-aarch64-linux-gnu) sha256=9a1200916572dd5518da5d6a66bb136274fa577ecaa67c59dbecd34b872b48fc
@@ -99,7 +99,7 @@ CHECKSUMS
   lipgloss (0.2.2-x86_64-darwin) sha256=6f5bab39a31f38995c5fb964ca0a1f84af0102814b4406f8ca96f30da54e112e
   lipgloss (0.2.2-x86_64-linux-gnu) sha256=99b26dfc4eaa2bf2dfd9823f0894a06ef0b8f7f773db70ae8905d1c5d9d663ad
   lipgloss (0.2.2-x86_64-linux-musl) sha256=a05ebd4d16a441bbe657fafb269d0f9e6d89a1124b3288264efedc427b007703
-  msgpack (1.7.5)
+  msgpack (1.7.5) sha256=ffb04979f51e6406823c03abe50e1da2c825c55a37dee138518cdd09d9d3aea8
   ntcharts (0.1.2) sha256=0ca848f92a9958445b9cb79751130ca6c9e2924d8e2c1249f0fe71ba006d091b
   ntcharts (0.1.2-aarch64-linux-gnu) sha256=3e159c0b868b72ac62625d5bafe9a899dc01fb1ac51fbf616818116e9c5c2b9e
   ntcharts (0.1.2-aarch64-linux-musl) sha256=4281c9b303a1193d1146f53970b958e29cd6fffc74616a59d0671d62e2f41f2f

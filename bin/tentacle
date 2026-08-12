@@ -1,0 +1,87 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require "rubygems"
+
+MIN_RUBY_VERSION = Gem::Version.new("3.3")
+current_ruby = Gem::Version.new(RUBY_VERSION)
+if current_ruby < MIN_RUBY_VERSION
+  warn "Error: Tentacle requires Ruby 3.3 or newer (found #{RUBY_VERSION})."
+  warn "Ruby 3.4+ is recommended for a currently maintained runtime."
+  exit 1
+end
+
+ENV["BUNDLE_GEMFILE"] ||= File.expand_path("../Gemfile", __dir__)
+require "bundler/setup"
+require "optparse"
+require_relative "../lib/tentacle"
+
+options = {
+  app: ENV["TENTACLE_APP"],
+  max_lines: ENV.fetch("TENTACLE_MAX_LINES", "5000").to_i,
+  slow_ms: ENV.fetch("TENTACLE_SLOW_MS", "1000").to_i,
+  color: ENV.fetch("NO_COLOR", "").empty?
+}
+
+parser = OptionParser.new do |opts|
+  opts.banner = "Usage: tentacle APP [options]\n       tentacle --app APP [options]"
+  opts.on("-a", "--app APP", "Heroku app name") { |value| options[:app] = value }
+  opts.on("--max-lines N", Integer, "Lines kept in memory (default: 5000)") { |value| options[:max_lines] = value }
+  opts.on("--slow-ms N", Integer, "Slow-request threshold in ms (default: 1000)") { |value| options[:slow_ms] = value }
+  opts.on("--no-color", "Disable ANSI colors") { options[:color] = false }
+  opts.on("-v", "--version", "Show tentacle version") do
+    puts "tentacle #{Tentacle::VERSION}"
+    exit
+  end
+  opts.on("-h", "--help", "Show help") do
+    puts opts
+    exit
+  end
+end
+
+parser.parse!(ARGV)
+positional_app = ARGV.shift
+options[:app] = positional_app if positional_app
+
+if ARGV.any?
+  warn "Error: unexpected arguments: #{ARGV.join(' ')}"
+  warn parser
+  exit 1
+end
+
+if options[:app].to_s.strip.empty?
+  warn "Error: a Heroku app name is required."
+  warn "Pass it as `tentacle APP`, `tentacle --app APP`, or set TENTACLE_APP."
+  warn
+  warn parser
+  exit 1
+end
+
+if options[:max_lines] <= 0
+  warn "Error: --max-lines must be greater than 0."
+  exit 1
+end
+
+if options[:slow_ms] < 0
+  warn "Error: --slow-ms must be 0 or greater."
+  exit 1
+end
+
+preflight = Tentacle::Preflight.new.check
+unless preflight.ok?
+  warn preflight.message
+  exit 1
+end
+
+app = Tentacle::App.new(
+  app_name: options[:app],
+  max_lines: options[:max_lines],
+  color: options[:color],
+  slow_ms: options[:slow_ms]
+)
+
+Bubbletea.run(
+  app,
+  alt_screen: true,
+  report_focus: true
+)

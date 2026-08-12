@@ -1,0 +1,54 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+cd "$ROOT"
+
+if ! command -v ruby >/dev/null 2>&1; then
+  echo "Ruby is required (3.3+; Ruby 3.4+ recommended)." >&2
+  exit 1
+fi
+
+ruby -e 'abort "Ruby 3.3+ is required" if Gem::Version.new(RUBY_VERSION) < Gem::Version.new("3.3")'
+
+if ! command -v git >/dev/null 2>&1; then
+  echo "Git is required by the Heroku CLI." >&2
+  exit 1
+fi
+
+if ! command -v heroku >/dev/null 2>&1; then
+  echo "Heroku CLI is not in PATH. Install it before running Tentacle." >&2
+  exit 1
+fi
+
+if ! command -v bundle >/dev/null 2>&1; then
+  echo "Installing Bundler..."
+  gem install bundler
+fi
+
+bundle install
+mkdir -p "$HOME/.local/bin"
+ln -sfn "$ROOT/bin/tentacle" "$HOME/.local/bin/tentacle"
+
+case "${SHELL:-}" in
+  */zsh) shell_rc="$HOME/.zshrc" ;;
+  */bash) shell_rc="$HOME/.bashrc" ;;
+  *) shell_rc="your shell profile" ;;
+esac
+
+echo
+echo "Installed symlink: $HOME/.local/bin/tentacle"
+if [[ ":${PATH}:" != *":$HOME/.local/bin:"* ]]; then
+  echo "Add this to ${shell_rc}:"
+  echo '  export PATH="$HOME/.local/bin:$PATH"'
+fi
+
+echo
+if heroku auth:whoami >/dev/null 2>&1; then
+  echo "Heroku authentication: verified"
+else
+  echo "Heroku authentication: not verified"
+  echo "Run: heroku login"
+fi
+
+echo "Run: tentacle YOUR_HEROKU_APP"

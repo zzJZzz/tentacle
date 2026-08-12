@@ -97,9 +97,9 @@ Reload your shell, authenticate Heroku, then install Tentacle:
 ```bash
 # zsh
 source ~/.zshrc
-# bash (use one of these depending on where you added PATH)
-source ~/.bashrc
-source ~/.bash_profile
+# bash (source the file you edited)
+if [ -f ~/.bashrc ]; then source ~/.bashrc; fi
+if [ -f ~/.bash_profile ]; then source ~/.bash_profile; fi
 
 ruby --version
 heroku login
@@ -163,6 +163,7 @@ tentacle YOUR_HEROKU_APP
 ```
 
 `bin/setup` checks the Ruby version and that the Heroku CLI exists. Tentacle itself checks authentication before starting the fullscreen UI.
+`bin/setup` also verifies Git, installs Bundler if needed, installs gems, and creates `~/.local/bin/tentacle`.
 
 ## Choose the Heroku app
 

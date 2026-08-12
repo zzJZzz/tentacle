@@ -31,16 +31,35 @@ mkdir -p "$HOME/.local/bin"
 ln -sfn "$ROOT/bin/tentacle" "$HOME/.local/bin/tentacle"
 
 case "${SHELL:-}" in
-  */zsh) shell_rc="$HOME/.zshrc" ;;
-  */bash) shell_rc="$HOME/.bashrc" ;;
-  *) shell_rc="your shell profile" ;;
+  */zsh)
+    shell_rc="$HOME/.zshrc"
+    path_line='  export PATH="$HOME/.local/bin:$PATH"'
+    ;;
+  */bash)
+    if [[ -f "$HOME/.bashrc" ]]; then
+      shell_rc="$HOME/.bashrc"
+    elif [[ -f "$HOME/.bash_profile" ]]; then
+      shell_rc="$HOME/.bash_profile"
+    else
+      shell_rc="$HOME/.bashrc"
+    fi
+    path_line='  export PATH="$HOME/.local/bin:$PATH"'
+    ;;
+  */fish)
+    shell_rc="$HOME/.config/fish/config.fish"
+    path_line='  fish_add_path $HOME/.local/bin'
+    ;;
+  *)
+    shell_rc="your shell profile"
+    path_line='  export PATH="$HOME/.local/bin:$PATH"'
+    ;;
 esac
 
 echo
 echo "Installed symlink: $HOME/.local/bin/tentacle"
 if [[ ":${PATH}:" != *":$HOME/.local/bin:"* ]]; then
   echo "Add this to ${shell_rc}:"
-  echo '  export PATH="$HOME/.local/bin:$PATH"'
+  echo "$path_line"
 fi
 
 echo

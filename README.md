@@ -10,6 +10,10 @@ Tentacle is a local, fullscreen TUI for investigating Heroku logs without leavin
 
 Tentacle is intentionally **keyboard-first** and **read-only**. It does not restart dynos, change config, modify releases, connect directly to your database, send telemetry, or upload logs anywhere.
 
+<img width="1566" height="1004" alt="Tentacle Demo" src="https://github.com/user-attachments/assets/7e923bf7-af69-431a-a062-189e1a08e5db" />
+<img width="1024" height="656" alt="windowsterminal_2dpgdfta5n_1024" src="https://github.com/user-attachments/assets/ee4c029f-f714-4a25-a701-f04c9297069e" />
+
+
 ## Quick start
 
 If Ruby 3.3+, Git, and the Heroku CLI are already installed:

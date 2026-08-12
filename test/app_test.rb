@@ -30,6 +30,10 @@ class AppTest < Minitest::Test
     @app.update(Tentacle::LogLineMessage.new(line))
   end
 
+  def tabs_line(app = @app)
+    app.view.split("\n").find { |line| line.include?("1:Overview") }
+  end
+
   def test_search_buffer_accepts_typing_without_frozen_string_error
     @app.update(key("/"))
     @app.update(key("e"))
@@ -118,6 +122,48 @@ class AppTest < Minitest::Test
     view = @app.view
     assert_includes view, "/slow"
     refute_includes view, "/fast"
+  end
+
+  def test_tab_counts_stay_attached_to_their_own_tab_label
+    add('2026-08-11T18:35:02Z app[web.1]: NoMethodError: first failure')
+    add('2026-08-11T18:35:03Z app[web.1]: NoMethodError: first failure')
+
+    tabs = tabs_line
+
+    assert_includes tabs, "4:Errors·2"
+    assert_includes tabs, "5:Groups·1"
+    refute_includes tabs, "4:Errors 2"
+  end
+
+  def test_tab_counts_render_in_their_own_style
+    marker = Class.new do
+      def method_missing(_name, *_args) = self
+      def respond_to_missing?(_name, _include_private = false) = true
+      def render(text) = "<count>#{text}</count>"
+    end.new
+
+    app = Tentacle::App.new(app_name: "test-app", color: true, mute_store: FakeMuteStore.new)
+    app.update(Bubbletea::WindowSizeMessage.new(width: 120, height: 30))
+    styles = app.instance_variable_get(:@styles)
+    styles[:tab_inactive_count] = marker
+    styles[:tab_active_count] = marker
+    app.update(Tentacle::LogLineMessage.new('2026-08-11T18:35:02Z app[web.1]: NoMethodError: boom'))
+
+    tabs = tabs_line(app)
+
+    assert_includes tabs, "4:Errors<count>·1</count>"
+    assert_includes tabs, "7:Worker"
+    refute_includes tabs, "7:Worker<count>"
+  end
+
+  def test_tab_counts_are_hidden_in_narrow_terminals
+    add('2026-08-11T18:35:02Z app[web.1]: NoMethodError: first failure')
+    @app.update(Bubbletea::WindowSizeMessage.new(width: 100, height: 30))
+
+    tabs = tabs_line
+
+    assert_includes tabs, "4:Errors"
+    refute_includes tabs, "4:Errors·"
   end
 
   def test_each_tab_has_description_above_search_line

@@ -2,6 +2,12 @@
 
 All notable changes to Tentacle are documented here.
 
+## 1.0.1 — 2026-08-12
+
+### Fixed
+
+- Tab count badges (Errors, Groups, Slow) no longer read as tab number keys. Each count now renders in its own italic gold style instead of inheriting the tab label style, and a `·` separator binds the count to its own tab, so `4:Errors·20` cannot be misread as a tab `20`. The count keeps the active tab's chip background, and the tab row occupies exactly the same width as before.
+
 ## 1.0.0 — 2026-08-12
 
 First stable public release.

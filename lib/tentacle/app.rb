@@ -33,6 +33,12 @@ module Tentacle
     DUAL_SCREEN_MIN_WIDTH = 120
     LLM_LOG_LIMIT = 80
 
+    # Tabs that carry a count badge, plus the separator that binds the count to
+    # its own label so it cannot be misread as the next tab's number key.
+    COUNTED_TABS = [:errors, :groups, :slow].freeze
+    TAB_COUNT_SEPARATOR = "·"
+    TAB_COUNT_MIN_WIDTH = 110
+
     TAB_DESCRIPTIONS = {
       overview: "Live health snapshot: request volume, errors, slow requests, and recurring failures.",
       all: "Every buffered Heroku log line, regardless of source or process.",
@@ -1030,12 +1036,17 @@ module Tentacle
 
     def tabs_line
       rendered = TABS.map.with_index do |(tab, label), index|
+        active = tab == @tab
         count = tab_count(tab)
-        show_count = @width >= 110 && count.positive? && [:errors, :groups, :slow].include?(tab)
-        count_text = show_count ? " #{compact_count(count)}" : ""
-        text = "#{index + 1}:#{label}#{count_text}"
-        style = tab == @tab ? @styles[:tab_active] : @styles[:tab_inactive]
-        styled(text, style)
+        text = "#{index + 1}:#{label}"
+
+        if @width >= TAB_COUNT_MIN_WIDTH && count.positive? && COUNTED_TABS.include?(tab)
+          # The count is a separate style so it never reads as a tab number key.
+          styled(text, active ? @styles[:tab_active_label] : @styles[:tab_inactive_label]) +
+            styled("#{TAB_COUNT_SEPARATOR}#{compact_count(count)}", active ? @styles[:tab_active_count] : @styles[:tab_inactive_count])
+        else
+          styled(text, active ? @styles[:tab_active] : @styles[:tab_inactive])
+        end
       end
 
       if @tab == :request
@@ -1769,6 +1780,8 @@ module Tentacle
       border = adaptive.call("#D0D7DE", "#30363D")
       white = adaptive.call("#FFFFFF", "#FFFFFF")
       dark_text = adaptive.call("#24292F", "#0D1117")
+      tab_active_bg = adaptive.call("#6639BA", "#5B5BD6")
+      count_on_chip = adaptive.call("#F7DE8B", "#FFE9A8")
 
       @chart_colors = {
         requests: adaptive.call("#0969DA", "#58A6FF"),
@@ -1783,8 +1796,14 @@ module Tentacle
         info_badge: Lipgloss::Style.new.bold(true).foreground(white).background(adaptive.call("#0969DA", "#1F6FEB")).padding(0, 1),
         warning_badge: Lipgloss::Style.new.bold(true).foreground(dark_text).background(adaptive.call("#BF8700", "#D29922")).padding(0, 1),
         danger_badge: Lipgloss::Style.new.bold(true).foreground(white).background(adaptive.call("#CF222E", "#DA3633")).padding(0, 1),
-        tab_active: Lipgloss::Style.new.bold(true).foreground(white).background(adaptive.call("#6639BA", "#5B5BD6")).padding(0, 1),
+        tab_active: Lipgloss::Style.new.bold(true).foreground(white).background(tab_active_bg).padding(0, 1),
         tab_inactive: Lipgloss::Style.new.foreground(muted).padding(0, 1),
+        # Counted tabs split the chip in two so the count can carry its own
+        # color and weight; padding is one-sided to keep the chip seamless.
+        tab_active_label: Lipgloss::Style.new.bold(true).foreground(white).background(tab_active_bg).padding_left(1),
+        tab_active_count: Lipgloss::Style.new.italic(true).foreground(count_on_chip).background(tab_active_bg).padding_right(1),
+        tab_inactive_label: Lipgloss::Style.new.foreground(muted).padding_left(1),
+        tab_inactive_count: Lipgloss::Style.new.italic(true).foreground(gold).padding_right(1),
         tab_context: Lipgloss::Style.new.bold(true).foreground(blue).padding(0, 1),
         description: Lipgloss::Style.new.italic(true).foreground(muted),
         release_context: Lipgloss::Style.new.foreground(blue).background(surface),

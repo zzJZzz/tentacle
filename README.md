@@ -158,7 +158,7 @@ fish_add_path $HOME/.local/bin
 ### Verify Tentacle
 
 ```bash
-tentacle --version   # tentacle 1.0.0
+tentacle --version   # tentacle 1.0.1
 tentacle YOUR_HEROKU_APP
 ```
 
@@ -229,6 +229,8 @@ Environment equivalents are `TENTACLE_APP`, `TENTACLE_MAX_LINES`, and `TENTACLE_
 | `9` | **Database** | PostgreSQL and MySQL/MariaDB-related log output and database-side failures  |
 
 Every view has a one-line description directly below the tabs and above the search/filter line.
+
+In terminals at least 110 columns wide, the Errors, Groups, and Slow tabs show a live count. Counts are styled differently from the tab labels — italic gold, attached with a `·` separator, as in `4:Errors·20` — so a count is never mistaken for a tab number key. Counts are hidden in narrower terminals to keep the tab row on one line.
 
 ## Security & privacy
 

@@ -14,8 +14,9 @@ end
 ENV["BUNDLE_GEMFILE"] ||= File.expand_path("../Gemfile", __dir__)
 require "bundler/setup"
 require "optparse"
-require_relative "../lib/tentacle"
+require_relative "../lib/tentacle/version"
 
+# 1. Parse CLI and handle --version / --help before loading anything heavy.
 options = {
   app: ENV["TENTACLE_APP"],
   max_lines: ENV.fetch("TENTACLE_MAX_LINES", "5000").to_i,
@@ -49,6 +50,7 @@ if ARGV.any?
   exit 1
 end
 
+# 2. Validate arguments before doing any I/O.
 if options[:app].to_s.strip.empty?
   warn "Error: a Heroku app name is required."
   warn "Pass it as `tentacle APP`, `tentacle --app APP`, or set TENTACLE_APP."
@@ -67,9 +69,57 @@ if options[:slow_ms] < 0
   exit 1
 end
 
-preflight = Tentacle::Preflight.new.check
-unless preflight.ok?
-  warn preflight.message
+# 3. Verify the heroku executable exists before spawning threads.
+unless system("command -v heroku >/dev/null 2>&1")
+  warn "Error: Heroku CLI was not found in PATH."
+  warn "Install the Heroku CLI, run `heroku login`, and then retry Tentacle."
+  exit 1
+end
+
+# 4. Bootsnap (optional performance cache).
+unless ENV["DISABLE_BOOTSNAP"]
+  begin
+    require "bootsnap"
+
+    cache_root = ENV["XDG_CACHE_HOME"] ||
+      (RUBY_PLATFORM.include?("darwin") ? File.expand_path("~/Library/Caches") : File.expand_path("~/.cache"))
+
+    Bootsnap.setup(
+      cache_dir: File.join(cache_root, "tentacle", "bootsnap"),
+      load_path_cache: true,
+      compile_cache_iseq: true,
+      compile_cache_yaml: false,
+      development_mode: false
+    )
+  rescue LoadError
+    # Bootsnap is optional.
+  rescue SystemCallError => e
+    warn "Tentacle: Bootsnap disabled: #{e.message}" if ENV["TENTACLE_DEBUG"]
+  end
+end
+
+# 5. Start the Heroku auth check in a thread so it overlaps with gem loading.
+require_relative "../lib/tentacle/preflight"
+
+auth_thread = Thread.new do
+  Tentacle::Preflight.new.check
+rescue => e
+  e
+end
+
+# 6. Load heavy application dependencies while auth runs.
+require_relative "../lib/tentacle"
+
+# 7. Join auth thread and handle result.
+auth_result = auth_thread.value
+
+if auth_result.is_a?(Exception)
+  warn "Error: Tentacle could not run the Heroku CLI preflight: #{auth_result.class}: #{auth_result.message}"
+  exit 1
+end
+
+unless auth_result.ok?
+  warn auth_result.message
   exit 1
 end
 
